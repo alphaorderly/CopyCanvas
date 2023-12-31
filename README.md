@@ -2,7 +2,7 @@
 
 ![image](https://github.com/alphaorderly/CopyCanvas/assets/55572245/c60605cc-fa6f-499e-9fcf-59b972954192)
 
-![WEBSITE](https://copy-canvas.vercel.app)
+[WEBSITE](https://copy-canvas.vercel.app)
 
 ---
 
