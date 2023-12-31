@@ -1,38 +1,32 @@
-# create-svelte
+## COPYCANVAS
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+![image](https://github.com/alphaorderly/CopyCanvas/assets/55572245/c60605cc-fa6f-499e-9fcf-59b972954192)
 
-## Creating a project
+---
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Object
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+- To draw a image and directly copy to clipboard.
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+- Can be pasted to any website which support a instant image paste.
 
-## Developing
+---
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Feature
 
-```bash
-npm run dev
+- Draw line with mouse
+- Reset whole canvas
+- Save drawn canvas with CTRL-S
+- Undo drawn canvas with CTRL-Z
+- Change line color
+- All images drawn in canvas will be stored in clipboard ASAP
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+![Animation](https://github.com/alphaorderly/CopyCanvas/assets/55572245/21598a54-7485-45e0-9f5e-4240f930d75c)
 
-## Building
+---
 
-To create a production version of your app:
+### Execution
 
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+1. clone project
+2. run npm install
+3. run npm run dev
