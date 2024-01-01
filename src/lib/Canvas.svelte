@@ -19,7 +19,7 @@
     let reservedImage;
 
     let color = 'black';
-    let background = '#fff';
+    let background = 'white';
     let lineWidth = 1.0;
 
     $: color && changeColor();
@@ -76,12 +76,8 @@
 	}
 
     const handleStart = ({ offsetX: x, offsetY: y }) => { 
-		if(color === background) {
-			context.clearRect(0, 0, width, height)
-		} else {
-			isDrawing = true
-			start = { x, y }
-		}
+		isDrawing = true
+		start = { x, y }
 	}
 
 	const handleMove = ({ offsetX: x1, offsetY: y1, buttons: b }) => {
