@@ -19,7 +19,8 @@
     let reservedImage;
 
     let color = 'black';
-    let background = '#fff';
+    let background = 'white';
+    let lineWidth = 1.0;
 
     $: color && changeColor();
 
@@ -31,6 +32,16 @@
         }
     }
 
+    const changeLineWidth = () => {
+        if(context !== undefined && context !== null) {
+            reserve = true;
+            reservedImage = context.getImageData(0, 0, canvas.width, canvas.height);
+            context.lineWidth = lineWidth
+        }
+    }
+
+    $: lineWidth && changeLineWidth();
+
     let t, l;
 
     const setBackground = (color) => {
@@ -40,6 +51,8 @@
 
     onMount(() => {
         context = canvas.getContext('2d');
+        context.strokeStyle = color;
+        context.lineWidth = lineWidth;
         setBackground(background);
         handleSize();
     })
@@ -63,12 +76,8 @@
 	}
 
     const handleStart = ({ offsetX: x, offsetY: y }) => { 
-		if(color === background) {
-			context.clearRect(0, 0, width, height)
-		} else {
-			isDrawing = true
-			start = { x, y }
-		}
+		isDrawing = true
+		start = { x, y }
 	}
 
 	const handleMove = ({ offsetX: x1, offsetY: y1, buttons: b }) => {
@@ -85,7 +94,9 @@
             context.moveTo(x, y);
             context.lineTo(x1, y1);
             context.closePath()
-            context.stroke()
+            context.stroke();
+
+            console.log(x, y, x1, y1)
 
             start = { x: x1, y: y1 }
         }
@@ -93,7 +104,7 @@
 
     const handleEnd = () => {
         if(isDrawing) {
-            isDrawing = false 
+            isDrawing = false
             canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({'image/png': blob})]))
 
             undoArray.push(context.getImageData(0, 0, canvas.width, canvas.height))
@@ -174,6 +185,7 @@
         bind:height
         bind:width
         bind:color
+        bind:lineWidth
         reset={resetCanvas}
     />
 
