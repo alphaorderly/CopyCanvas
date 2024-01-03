@@ -51,8 +51,12 @@
 
     onMount(() => {
         context = canvas.getContext('2d');
+
         context.strokeStyle = color;
         context.lineWidth = lineWidth;
+        context.lineCap = 'round';
+        context.lineJoin = 'round'
+
         setBackground(background);
         handleSize();
     })
@@ -78,28 +82,50 @@
     const handleStart = ({ offsetX: x, offsetY: y }) => { 
 		isDrawing = true
 		start = { x, y }
+
+        console.log('start')
 	}
 
-	const handleMove = ({ offsetX: x1, offsetY: y1, buttons: b }) => {
-        if(b == 1) {
-
+    const handleMove = (e) => {
+        if(e.buttons == 1) {
             if(!isDrawing) {
                 start = { x1, y1 }
                 isDrawing = true;
             }
 
+            context.lineCap = 'round';
+            context.lineJoin = 'round'
+
             const { x, y } = start
 
             context.beginPath()
             context.moveTo(x, y);
-            context.lineTo(x1, y1);
+            context.lineTo(e.offsetX, e.offsetY);
             context.closePath()
             context.stroke();
 
-            console.log(x, y, x1, y1)
-
-            start = { x: x1, y: y1 }
+            start = { x: e.offsetX, y: e.offsetY }
         }
+	}
+
+    const handleMoveTouch = (e) => {
+        if(!isDrawing) {
+            start = { x1, y1 }
+            isDrawing = true;
+        }
+
+        context.lineCap = 'round';
+        context.lineJoin = 'round'
+
+        const { x, y } = start
+
+        context.beginPath()
+        context.moveTo(x, y);
+        context.lineTo(e.offsetX, e.offsetY);
+        context.closePath()
+        context.stroke();
+
+        start = { x: e.offsetX, y: e.offsetY }
 	}
 
     const handleEnd = () => {
@@ -170,7 +196,8 @@
     }
     canvas {
         display: block;
-        border: 0.5px black solid;
+        box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 10px;
+        margin-bottom: 30px;
     }
 </style>
 
@@ -212,7 +239,7 @@
         on:mousemove={handleMove}
         on:touchmove={e => {
             const { clientX, clientY } = e.touches[0]
-            handleMove({
+            handleMoveTouch({
                 offsetX: clientX - l,
                 offsetY: clientY - t
             })

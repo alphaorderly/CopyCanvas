@@ -35,14 +35,18 @@
         width: 60px;
         height: 20px;
         border-radius: 5px;
-        border: 0.8px rgba(0, 0, 0, 0.8) solid;
+        border: none;
+        box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 4px 8px;
     }
 
     .tool_row {
         display: flex;
         flex-direction: row;
         align-items:center;
-        margin-bottom: 10px;
+        padding:5px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        background-color: rgba(.3, .3, .3, 0.1);
     }
 
     .tool_row span {
@@ -85,6 +89,12 @@
         border-radius: 50%;
     }
 
+    #width_selector {
+        padding: 3px;
+        border: none;
+        box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 4px 8px;
+    }
+
 </style>
 
 
@@ -103,7 +113,7 @@
     </div>
     <div class="tool_row">
         <span on:click={() => {changeColor("white")}} class="icon_wrapper"><Icon style="color:{color == 'white' ? 'black' : 'gray'};" icon="mdi:eraser" width="20" height="20" /></span>
-        <select bind:value={lineWidth}>
+        <select id="width_selector" bind:value={lineWidth}>
             {#each lines as line}
                 <option value={line}>{line}px</option>
             {/each}
