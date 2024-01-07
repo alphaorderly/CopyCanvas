@@ -168,6 +168,7 @@
                 context.putImageData(undoArray[undoIndex], 0, 0)
             }
         }
+        canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({'image/png': blob})]))
     }
 
     const keyboardHandler = (e) => {  
