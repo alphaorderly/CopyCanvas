@@ -1,122 +1,395 @@
+<script lang="ts">
+    import Icon from "@iconify/svelte";
 
-<script>
-    import ColorPicker from 'svelte-awesome-color-picker';
+    export let height = 540;
+    export let width = 720;
+    export let color = "#111";
+    export let background = "#f5f5f5";
+    export let transparentBg = false;
+    export let lineWidth = 3;
+    export let showGrid = true;
+    export let gridSize = 16;
+    export let autoCopy = true;
+    export let filename = "copycanvas";
+    export let exportFormat: "image/png" | "image/jpeg" | "image/webp" = "image/png";
+    export let exportScale = 1;
 
-    import Icon from '@iconify/svelte';
+    export let pages: { id: string; name: string; dataUrl: string }[] = [];
+    export let activePageId: string;
 
-    const rainbowBackground = `background-image: linear-gradient( 89.7deg, rgba(223,0,0,1) 2.7%, rgba(214,91,0,1) 15.1%, rgba(233,245,0,1) 29.5%, rgba(23,255,17,1) 45.8%, rgba(29,255,255,1) 61.5%, rgba(5,17,255,1) 76.4%, rgba(202,0,253,1) 92.4% );`
+    export let onReset: () => void;
+    export let onUndo: () => void;
+    export let onRedo: () => void;
+    export let onDownload: () => void;
+    export let onExport: (opts: { format?: "image/png" | "image/jpeg" | "image/webp"; name?: string; scale?: number }) => void;
+    export let onSaveLocal: () => void;
+    export let onLoadLocal: () => void;
+    export let onNewPage: () => void;
+    export let onDuplicatePage: () => void;
+    export let onDeletePage: () => void;
+    export let onSelectPage: (id: string) => void;
 
-    export let height = 300;
-    export let width = 300;
-    export let reset;
-    export let color;
-    export let lineWidth;
+    const palette = ["#111", "#444", "#888", "#cfcfcf", "#ffffff"];
+    const lineOptions = [1, 2, 3, 4, 6, 8, 10, 12];
 
-    let colors = ["black", "red", "orange", "blue", "green"]
+    const handleSelectPage = (event: Event) => {
+        const target = event.currentTarget as HTMLSelectElement | null;
+        if (target) onSelectPage(target.value);
+    };
 
-    let lines = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-
-    const changeColor = (c) => {
-        color = c
-        console.log(c)
-    }
+    const handleLineWidth = (event: Event) => {
+        const target = event.currentTarget as HTMLSelectElement | null;
+        if (!target) return;
+        const value = Number(target.value);
+        if (!Number.isNaN(value)) lineWidth = value;
+    };
 </script>
 
-<style>
-    #tool_container {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-    }
-
-    .canvas_size_input {
-        text-align: center;
-        width: 60px;
-        height: 20px;
-        border-radius: 5px;
-        border: none;
-        box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 4px 8px;
-    }
-
-    .tool_row {
-        display: flex;
-        flex-direction: row;
-        align-items:center;
-        padding:5px;
-        margin-bottom: 5px;
-        border-radius: 5px;
-        background-color: rgba(.3, .3, .3, 0.1);
-    }
-
-    .tool_row span {
-        margin-right: 10px;
-    }
-
-    .chosen_color {
-        background-clip: content-box;
-        width: 16px;
-        height: 16px;
-        padding: 2px;
-        border: 2px solid black;
-        border-radius: 20px;
-        outline: none;
-    }
-
-    .not_chosen_color {
-        width: 20px;
-        height: 20px;
-        border-radius: 10px;
-        outline: none;
-    }
-
-    input[type=color] {
-        visibility: hidden;
-    }
-    
-    .picker_chosen_color {
-        background-clip: content-box;
-        width: 16px;
-        height: 16px;
-        padding: 2px;
-        border: 2px solid black;
-        border-radius: 50%;
-    }
-
-    .picker_not_chosen_color {
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-    }
-
-    #width_selector {
-        padding: 3px;
-        border: none;
-        box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 4px 8px;
-    }
-
-</style>
-
-
-<div id="tool_container">
-    <div class="tool_row">
-        <input bind:value={width} type="text" class="canvas_size_input"/>
-        <Icon icon="bx:x" width="20" height="20" />
-        <input bind:value={height} type="text" class="canvas_size_input"/>
+<div class="panel">
+    <div class="panel__header">
+        <div>
+            <p class="eyebrow">Workspace</p>
+            <h3>Controls</h3>
+        </div>
     </div>
-    <div class="tool_row">
-        <span on:click={reset} class="icon_wrapper"><Icon icon="fluent:arrow-reset-20-filled" width="25" height="25" style="cursor:pointer"/></span>
-        {#each colors as circle_color}
-            <span on:click={() => {changeColor(circle_color)}} style="background-color: {circle_color};" class:chosen_color={circle_color === color} class:not_chosen_color={circle_color !== color}></span>
-        {/each}
-        <label style={!color.startsWith("#") ? rainbowBackground : `background-color:${color}`} class:picker_not_chosen_color={!color.startsWith("#")} class:picker_chosen_color={color.startsWith("#")}><input type="color" on:input={(e) => changeColor(e.target.value)}/></label>
+
+    <div class="cluster">
+        <div class="field">
+            <p class="label-title">Canvas (px)</p>
+            <div class="inputs">
+                <input type="number" min="64" max="4096" bind:value={width} />
+                <span class="by">×</span>
+                <input type="number" min="64" max="4096" bind:value={height} />
+            </div>
+        </div>
+
+        <div class="field">
+            <p class="label-title">Pages</p>
+            <div class="inputs">
+                <select bind:value={activePageId} on:change={handleSelectPage} aria-label="페이지 선택">
+                    {#each pages as page}
+                        <option value={page.id}>{page.name}</option>
+                    {/each}
+                </select>
+                <div class="buttons">
+                    <button class="ghost" on:click={onNewPage} title="New page">
+                        <Icon icon="lucide:plus" width="16" />
+                    </button>
+                    <button class="ghost" on:click={onDuplicatePage} title="Duplicate page">
+                        <Icon icon="lucide:copy" width="16" />
+                    </button>
+                    <button class="ghost" on:click={onDeletePage} title="Delete page">
+                        <Icon icon="lucide:trash" width="16" />
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="tool_row">
-        <span on:click={() => {changeColor("white")}} class="icon_wrapper"><Icon style="color:{color == 'white' ? 'black' : 'gray'};" icon="mdi:eraser" width="20" height="20" /></span>
-        <select id="width_selector" bind:value={lineWidth}>
-            {#each lines as line}
-                <option value={line}>{line}px</option>
-            {/each}
-        </select>
+
+    <div class="cluster two-cols">
+        <div class="field">
+            <p class="label-title">Stroke</p>
+            <div class="palette">
+                {#each palette as swatch}
+                    <button
+                        class={`swatch ${color === swatch ? "active" : ""}`}
+                        style={`background:${swatch}`}
+                        on:click={() => (color = swatch)}
+                        aria-pressed={color === swatch}
+                        aria-label={`색상 ${swatch}`}
+                    />
+                {/each}
+                <label class="picker" aria-label="직접 색상 선택">
+                    <input type="color" bind:value={color} />
+                </label>
+            </div>
+            <div class="inputs">
+                <select bind:value={lineWidth} on:change={handleLineWidth} aria-label="선 두께">
+                    {#each lineOptions as value}
+                        <option value={value}>{value}px</option>
+                    {/each}
+                </select>
+                <button class="ghost" on:click={() => (color = "#fff")} title="Eraser (white)">
+                    <Icon icon="lucide:eraser" width="16" />
+                </button>
+            </div>
+        </div>
+
+        <div class="field">
+            <p class="label-title">Background</p>
+            <div class="inputs">
+                <input type="color" bind:value={background} disabled={transparentBg} />
+                <label class="toggle">
+                    <input type="checkbox" bind:checked={transparentBg} />
+                    <span>Transparent</span>
+                </label>
+            </div>
+            <div class="inputs">
+                <label class="toggle">
+                    <input type="checkbox" bind:checked={showGrid} />
+                    <span>Grid</span>
+                </label>
+                <input type="number" min="4" max="128" step="2" bind:value={gridSize} aria-label="격자 간격" />
+            </div>
+        </div>
+    </div>
+
+    <div class="cluster two-cols">
+        <div class="field">
+            <p class="label-title">History</p>
+            <div class="buttons">
+                <button on:click={onUndo}>
+                    <Icon icon="lucide:undo" width="16" /> Undo
+                </button>
+                <button on:click={onRedo}>
+                    <Icon icon="lucide:redo" width="16" /> Redo
+                </button>
+                <button class="ghost" on:click={onReset}>
+                    <Icon icon="lucide:rotate-ccw" width="16" /> Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="field">
+            <p class="label-title">Clipboard</p>
+            <label class="toggle">
+                <input type="checkbox" bind:checked={autoCopy} />
+                <span>Auto copy on draw</span>
+            </label>
+            <div class="buttons">
+                <button class="ghost" on:click={onSaveLocal}>Save</button>
+                <button class="ghost" on:click={onLoadLocal}>Load</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cluster">
+        <div class="field">
+            <p class="label-title">Export</p>
+            <div class="inputs">
+                <input type="text" bind:value={filename} placeholder="filename" aria-label="파일 이름" />
+                <select bind:value={exportFormat} aria-label="포맷">
+                    <option value="image/png">PNG</option>
+                    <option value="image/jpeg">JPG</option>
+                    <option value="image/webp">WEBP</option>
+                </select>
+                <input type="number" min="1" max="4" step="0.5" bind:value={exportScale} aria-label="배율" />
+            </div>
+            <div class="buttons">
+                <button on:click={onDownload}>
+                    <Icon icon="lucide:download" width="16" /> Quick save
+                </button>
+                <button
+                    class="ghost"
+                    on:click={() => onExport({ format: exportFormat, name: filename, scale: exportScale })}
+                >
+                    <Icon icon="lucide:export" width="16" /> Export options
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint">
+        <div class="hint__row">
+            <span>Ctrl/Cmd + Z</span>
+            <span>Undo · Shift+Z redo</span>
+        </div>
+        <div class="hint__row">
+            <span>Ctrl/Cmd + S</span>
+            <span>Quick save PNG</span>
+        </div>
+        <div class="hint__row">
+            <span>Click + drag</span>
+            <span>Draw · touch supported</span>
+        </div>
     </div>
 </div>
+
+<style>
+    .panel {
+        background: var(--panel);
+        color: var(--text);
+        border-radius: 16px;
+        padding: 16px;
+        width: 360px;
+    }
+
+    .panel__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 10px;
+        color: var(--muted);
+        margin: 0;
+    }
+
+    h3 {
+        margin: 2px 0 0;
+        font-size: 18px;
+        color: var(--text);
+    }
+
+    .cluster {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 10px;
+        background: var(--panel);
+    }
+
+    .two-cols {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    label {
+        color: var(--muted-strong);
+        font-size: 12px;
+    }
+
+    .label-title {
+        color: var(--muted-strong);
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .inputs {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    input,
+    select {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 13px;
+        width: 100%;
+    }
+
+    input[type="color"] {
+        padding: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+    }
+
+    .by {
+        color: var(--muted);
+    }
+
+    .buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    button {
+        background: var(--accent);
+        color: var(--accent-foreground);
+        border: none;
+        padding: 8px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    button.ghost {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .palette {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .swatch {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+    }
+
+    .swatch.active {
+        outline: 2px solid var(--muted-strong);
+    }
+
+    .picker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px dashed var(--border);
+        background: var(--surface-weak);
+    }
+
+    .picker input[type="color"] {
+        width: 100%;
+        height: 100%;
+        border: none;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .toggle {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted-strong);
+        font-size: 13px;
+    }
+
+    .toggle input {
+        width: auto;
+    }
+
+    .hint {
+        margin-top: 12px;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: var(--panel-strong);
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .hint__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 3px 0;
+    }
+
+    @media (max-width: 960px) {
+        .panel {
+            width: 100%;
+        }
+    }
+</style>

@@ -1,34 +1,29 @@
-## COPYCANVAS
+## COPYCANVAS (v2)
 
-![image](https://github.com/alphaorderly/CopyCanvas/assets/55572245/c60605cc-fa6f-499e-9fcf-59b972954192)
+Greyscale, shadcn-inspired canvas lab for fast sketching, clipboard capture, layered boards, and export-ready assets.
 
-[WEBSITE](https://copy-canvas.vercel.app)
+### Features
 
----
+- Mouse/touch drawing with palette + line widths
+- Multi-page boards (add, duplicate, delete)
+- Undo/redo, reset, auto-copy to clipboard
+- Transparent or colored background, grid overlay
+- Export PNG/JPG/WEBP with filename + scale
+- Local quick save/load (browser storage)
+- Keyboard: Ctrl/Cmd+Z (undo), Shift+Z / Y (redo), Ctrl/Cmd+S (quick save)
 
-### Object
+### Quick start
 
-- To draw a image and directly copy to clipboard.
+```bash
+git clone <repo>
+cd CopyCanvas
+yarn install
+yarn dev
+```
 
-- Can be pasted to any website which support a instant image paste.
+### Scripts
 
----
-
-### Feature
-
-- Draw line with mouse
-- Reset whole canvas
-- Save drawn canvas with CTRL-S
-- Undo drawn canvas with CTRL-Z
-- Change line color
-- All images drawn in canvas will be stored in clipboard ASAP
-
-![Animation](https://github.com/alphaorderly/CopyCanvas/assets/55572245/21598a54-7485-45e0-9f5e-4240f930d75c)
-
----
-
-### Execution
-
-1. clone project
-2. run npm install
-3. run npm run dev
+- `yarn dev` — run locally
+- `yarn build` — production build
+- `yarn preview` — preview build
+- `yarn check` — svelte-check
