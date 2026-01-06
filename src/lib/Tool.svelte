@@ -97,7 +97,7 @@
                         on:click={() => (color = swatch)}
                         aria-pressed={color === swatch}
                         aria-label={`색상 ${swatch}`}
-                    />
+                    ></button>
                 {/each}
                 <label class="picker" aria-label="직접 색상 선택">
                     <input type="color" bind:value={color} />

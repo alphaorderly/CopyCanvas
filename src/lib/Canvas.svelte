@@ -387,7 +387,7 @@
 
         <div class={`board ${showGrid ? "board-grid" : ""}`}>
             {#if transparentBg}
-                <div class="checker" aria-hidden="true" />
+                <div class="checker" aria-hidden="true"></div>
             {/if}
             <canvas
                 tabindex="0"
@@ -405,7 +405,7 @@
                 on:mouseleave={handleEnd}
                 on:mousemove={handleMove}
                 on:touchmove={handleMoveTouch}
-            />
+            ></canvas>
         </div>
     </div>
 </div>

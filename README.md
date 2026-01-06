@@ -14,6 +14,8 @@ Greyscale, shadcn-inspired canvas lab for fast sketching, clipboard capture, lay
 
 ### Quick start
 
+Requires Node 22+ (see .nvmrc) and Yarn.
+
 ```bash
 git clone <repo>
 cd CopyCanvas
